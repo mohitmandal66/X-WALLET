@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>X-WALLET // Vault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Ambient Liquid Glow Orbs -->
+  <div class="glow-orb orb-primary"></div>
+  <div class="glow-orb orb-secondary"></div>
+  <div class="glow-orb orb-tertiary"></div>
+
+  <!-- 1. Security Lock Screen with On-Screen NumPad -->
+  <div class="lock-screen" id="lockScreen">
+    <div class="lock-card glass-panel">
+      <div class="lock-logo-wrap">
+        <img src="xwallet.png" alt="X-WALLET" class="brand-logo" onerror="this.style.display='none'; document.getElementById('lockFallbackBadge').style.display='grid';" />
+        <div class="brand-badge-fallback" id="lockFallbackBadge" style="display: none;">X</div>
+      </div>
+      <h2>X-WALLET VAULT</h2>
+      <p class="subtitle">Enter 6-digit numeric PIN</p>
+
+      <!-- PIN Display Display -->
+      <div class="pin-display-wrap">
+        <input type="password" id="vaultPasswordInput" class="pin-display-input" placeholder="••••••" maxlength="6" readonly />
+      </div>
+      <p class="error-msg" id="lockErrorMsg">Incorrect PIN. Access Denied.</p>
+
+      <!-- Liquid Glass NumPad -->
+      <div class="numpad-grid">
+        <button type="button" class="np-btn" data-key="1">1</button>
+        <button type="button" class="np-btn" data-key="2">2</button>
+        <button type="button" class="np-btn" data-key="3">3</button>
+        <button type="button" class="np-btn" data-key="4">4</button>
+        <button type="button" class="np-btn" data-key="5">5</button>
+        <button type="button" class="np-btn" data-key="6">6</button>
+        <button type="button" class="np-btn" data-key="7">7</button>
+        <button type="button" class="np-btn" data-key="8">8</button>
+        <button type="button" class="np-btn" data-key="9">9</button>
+        <button type="button" class="np-btn np-action" data-action="clear">C</button>
+        <button type="button" class="np-btn" data-key="0">0</button>
+        <button type="button" class="np-btn np-action" data-action="backspace">⌫</button>
+      </div>
+
+      <button type="button" class="glass-submit-btn" id="unlockSubmitBtn" style="margin-top: 14px;">Unlock Vault</button>
+    </div>
+  </div>
+
+  <!-- 2. Protected App Dashboard -->
+  <div class="app-container" id="appDashboard" style="display: none;">
+    <!-- Top Navigation Header -->
+    <header class="glass-header">
+      <div class="brand">
+        <img src="xwallet.png" alt="X-WALLET Logo" class="brand-logo" onerror="this.style.display='none'; document.getElementById('dashFallbackBadge').style.display='grid';" />
+        <div class="brand-badge-fallback" id="dashFallbackBadge" style="display: none;">X</div>
+        <div class="brand-text">
+          <h1>X-WALLET</h1>
+          <p id="liveClock">2026-10-29 00:00:00 IST</p>
+        </div>
+      </div>
+
+      <!-- Financial Metrics: Total Added -> Total Expenses -> Token Savings -->
+      <div class="header-metrics">
+        <div class="mini-stat">
+          <span class="label">Total Added</span>
+          <span class="value text-amber" id="totalAddedDisplay">₹0.00</span>
+        </div>
+        <div class="mini-stat">
+          <span class="label">Total Burn (Expenses)</span>
+          <span class="value text-rose" id="totalSpentDisplay">₹0.00</span>
+        </div>
+        <div class="mini-stat">
+          <span class="label">Token Savings</span>
+          <span class="value text-emerald" id="tokenSavingsDisplay">₹0.00</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="danger-btn" id="openResetTodayBtn" title="Reset Today's Entries">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Reset Today
+        </button>
+        <button class="lock-btn" id="relockBtn" title="Lock Wallet">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Lock
+        </button>
+      </div>
+    </header>
+
+    <!-- Day 1 Monthly Deposit Banner -->
+    <div class="month-prompt-banner glass-panel" id="monthPromptBanner">
+      <div class="banner-content">
+        <div class="banner-icon">💰</div>
+        <div>
+          <h3 id="monthPromptTitle">Day 1 of Month: Add Money Portal</h3>
+          <p class="subtitle" id="monthPromptSub">Check status and add your opening monthly capital.</p>
+        </div>
+      </div>
+      <button class="glass-submit-btn-sm" id="openAddMoneyBtn">+ Add Monthly Money</button>
+    </div>
+
+    <!-- Global Timeframe Selector -->
+    <div class="timeframe-container glass-panel">
+      <span class="tf-label">Horizon Filter:</span>
+      <div class="timeframe-selector" id="timeframeSelector">
+        <button class="tf-btn" data-days="1">1 Day</button>
+        <button class="tf-btn" data-days="2">2 Days</button>
+        <button class="tf-btn" data-days="7">1 Week</button>
+        <button class="tf-btn active" data-days="30">1 Month</button>
+        <button class="tf-btn" data-days="180">6 Months</button>
+        <button class="tf-btn" data-days="365">1 Year</button>
+        <button class="tf-btn" data-days="1825">5 Years</button>
+        <button class="tf-btn" data-days="3650">10 Years</button>
+        <button class="tf-btn" data-days="99999">All Time</button>
+      </div>
+    </div>
+
+    <!-- Dual Separate Histograms -->
+    <div class="charts-double-grid">
+      <!-- Histogram 1: Token Savings -->
+      <section class="chart-section glass-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Token Savings Histogram</h2>
+            <p class="subtitle">Shows your remaining token savings balance across dates</p>
+          </div>
+          <span class="chart-tag tag-green">Token Savings</span>
+        </div>
+
+        <div class="canvas-wrapper">
+          <canvas id="savingsHistogramChart"></canvas>
+          <div id="savingsTooltip" class="chart-tooltip"></div>
+        </div>
+      </section>
+
+      <!-- Histogram 2: Daily Expenses -->
+      <section class="chart-section glass-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Daily Expenses & Wasted Cost Histogram</h2>
+            <p class="subtitle">Shows money deducted per date</p>
+          </div>
+          <span class="chart-tag tag-red">Expenses Burn</span>
+        </div>
+
+        <div class="canvas-wrapper">
+          <canvas id="expenseHistogramChart"></canvas>
+          <div id="expenseTooltip" class="chart-tooltip"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Liquid Glass Section Divider -->
+    <div class="glass-divider">
+      <div class="divider-line"></div>
+      <span class="divider-chip">Ledger Operations, Calendar & Reflections</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- Bottom Interactive Operations Grid -->
+    <div class="dashboard-grid">
+      <!-- Calendar View -->
+      <section class="calendar-section glass-panel">
+        <div class="calendar-header">
+          <div class="cal-nav">
+            <button class="cal-btn" id="prevMonthBtn" title="Previous Month">&larr;</button>
+            <h3 id="calendarMonthYear">Month Year</h3>
+            <button class="cal-btn" id="nextMonthBtn" title="Next Month">&rarr;</button>
+          </div>
+          <span class="selected-date-indicator" id="selectedDateBadge">Click a date to inspect</span>
+        </div>
+
+        <div class="calendar-weekdays">
+          <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+        </div>
+        <div class="calendar-grid" id="calendarDays"></div>
+
+        <div class="selected-day-details" id="dayDetailsContainer">
+          <h4>Transactions & Notes for Selected Day</h4>
+          <div id="dayTransactionsList" class="day-list">No entries logged for this date.</div>
+        </div>
+      </section>
+
+      <!-- Ledger Entry & Daily Notes -->
+      <section class="forms-section glass-panel">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="transaction">- Deduct Daily Expense</button>
+          <button class="tab-btn" data-tab="diary">Daily Diary & Notes</button>
+        </div>
+
+        <!-- Expense Entry Tab -->
+        <div class="tab-content active" id="tab-transaction">
+          <form id="transactionForm" class="entry-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Expense Date</label>
+                <input type="date" id="txDate" class="glass-input" required />
+              </div>
+              <div class="form-group">
+                <label>Category</label>
+                <select id="txCategory" class="glass-select">
+                  <option value="Food & PG Meals">Food & PG Meals</option>
+                  <option value="Education & Study Materials">Education & Study Materials</option>
+                  <option value="Tech & Hardware">Tech, Hardware & Tools</option>
+                  <option value="Travel & Transportation">Travel & Transportation</option>
+                  <option value="Wasted / Unnecessary">Wasted / Unnecessary Expense</option>
+                  <option value="General Bills">General Bills / Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Amount Deducted from Token Savings (₹)</label>
+              <input type="number" id="txAmount" class="glass-input" step="0.01" min="0.01" placeholder="e.g. 150" required />
+            </div>
+
+            <div class="form-group">
+              <label>What did you spend on?</label>
+              <input type="text" id="txNote" class="glass-input" placeholder="e.g. Books, PG Dinner, Notebook" required />
+            </div>
+
+            <button type="submit" class="glass-submit-btn">Deduct from Token Savings</button>
+          </form>
+        </div>
+
+        <!-- Notes Tab -->
+        <div class="tab-content" id="tab-diary">
+          <form id="diaryForm" class="entry-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="diaryDate" class="glass-input" required />
+              </div>
+              <div class="form-group">
+                <label>Status Tag</label>
+                <select id="diaryTag" class="glass-select">
+                  <option value="🎯 Disciplined">🎯 Disciplined</option>
+                  <option value="⚠️ Wasted Money">⚠️ Wasted Money</option>
+                  <option value="📚 Study Focus">📚 Study Focus</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Daily Reflection Note</label>
+              <textarea id="diaryContent" class="glass-input" rows="3" placeholder="Write today's reality: Did you manage your token savings well? Any wasted money?" required></textarea>
+            </div>
+            <button type="submit" class="glass-submit-btn">Save Note into Diary</button>
+          </form>
+
+          <div class="diary-entries-feed" id="diaryEntriesFeed"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Day 1 Monthly Deposit Modal -->
+  <div class="modal-backdrop" id="addMoneyModal">
+    <div class="modal-window glass-panel">
+      <div class="modal-header">
+        <h3>Add Money (Day 1 of Month)</h3>
+        <button class="modal-close" id="closeAddMoneyBtn">&times;</button>
+      </div>
+      <p class="subtitle" id="addMoneyModalSubtitle">Add your monthly deposit. This capital sets your Token Savings for the month.</p>
+
+      <form id="monthlyAddMoneyForm" class="entry-form" style="margin-top: 14px;">
+        <div class="form-group">
+          <label>Deposit Date (Strictly 1st Day of Month)</label>
+          <input type="date" id="monthlyDepositDate" class="glass-input" required />
+        </div>
+        <div class="form-group">
+          <label>Total Added Money (₹)</label>
+          <input type="number" id="monthlyDepositAmount" class="glass-input" step="0.01" min="1" placeholder="e.g. 8000" required />
+        </div>
+        <div class="form-group">
+          <label>Source / Note</label>
+          <input type="text" id="monthlyDepositNote" class="glass-input" value="Monthly capital deposit" required />
+        </div>
+        <button type="submit" class="glass-submit-btn">Set Monthly Token Savings</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2-Step Confirmation Reset Today Modal -->
+  <div class="modal-backdrop" id="resetTodayModal">
+    <div class="modal-window glass-panel reset-modal">
+      <div class="modal-header">
+        <h3 class="text-rose">⚠️ Reset Today's Data</h3>
+        <button class="modal-close" id="closeResetModalBtn">&times;</button>
+      </div>
+
+      <!-- Step 1 Details -->
+      <div id="resetStep1">
+        <p class="subtitle" style="margin: 8px 0 14px;">
+          <strong>Step 1 of 2:</strong> This will permanently delete today's (<span id="resetDateLabel"></span>) expenses, day-1 added capital (if set today), and diary reflections.
+        </p>
+
+        <div class="reset-summary-box" id="resetSummaryBox">
+          Scanning today's ledger...
+        </div>
+
+        <div class="modal-actions" style="margin-top: 16px;">
+          <button type="button" class="glass-btn" id="cancelResetBtn">Cancel</button>
+          <button type="button" class="danger-submit-btn" id="proceedToStep2Btn">Proceed to Final Confirmation &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 2 Final Confirmation -->
+      <div id="resetStep2" style="display: none;">
+        <p class="subtitle" style="margin: 8px 0 14px;">
+          <strong>Step 2 of 2:</strong> To confirm permanent deletion, type <code class="code-tag">RESET</code> below:
+        </p>
+
+        <input type="text" id="confirmResetInput" class="glass-input text-center" placeholder="Type RESET" autocomplete="off" />
+        <p class="error-msg" id="resetCodeError">Incorrect word typed. Verification failed.</p>
+
+        <div class="modal-actions" style="margin-top: 16px;">
+          <button type="button" class="glass-btn" id="backToStep1Btn">&larr; Back</button>
+          <button type="button" class="danger-submit-btn" id="finalExecuteResetBtn">Permanently Erase Today's Data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
